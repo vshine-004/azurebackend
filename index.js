@@ -1,23 +1,21 @@
-const fetch = require('node-fetch');
+const fetch = require('node-fetch'); // <- important: using version 2
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-// Initialize express app
 const app = express();
+
 const corsOptions = {
-  origin: 'https://delightful-grass-0d007f200.6.azurestaticapps.net', // Specify the exact domain
-  methods: ['GET', 'POST'], // Allowed methods
-  allowedHeaders: ['Content-Type'], // Allowed headers
+  origin: 'https://delightful-grass-0d007f200.6.azurestaticapps.net',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
 };
 
-// Use CORS with the specified options
 app.use(cors(corsOptions));
-// Middleware setup
-app.use(cors());  // Allows all origins (you can modify this if needed)
-app.use(bodyParser.json());  // To parse JSON request bodies
+app.use(bodyParser.json());
 
-// POST endpoint to generate the story
+const HF_API_KEY = 'your-huggingface-api-key'; // replace this with your actual key
+
 app.post('/generate-story', async (req, res) => {
   const { prompt } = req.body;
 
@@ -25,10 +23,7 @@ app.post('/generate-story', async (req, res) => {
     return res.status(400).json({ error: 'Prompt is required.' });
   }
 
-  const HF_API_KEY = 'your-huggingface-api-key';
   const HF_API_URL = 'https://api-inference.huggingface.co/models/gpt2';
-
-  const payload = { inputs: prompt };
 
   try {
     const response = await fetch(HF_API_URL, {
@@ -37,7 +32,7 @@ app.post('/generate-story', async (req, res) => {
         'Authorization': `Bearer ${HF_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ inputs: prompt }),
     });
 
     const data = await response.json();
@@ -46,16 +41,15 @@ app.post('/generate-story', async (req, res) => {
       return res.status(500).json({ error: data.error });
     }
 
-    const generatedStory = data[0]?.generated_text || 'No story generated.';
-    res.status(200).json({ story: generatedStory });
+    const story = data[0]?.generated_text || "No story generated.";
+    res.status(200).json({ story });
   } catch (error) {
     console.error("Error generating story:", error);
-    res.status(500).json({ error: 'Internal Server Error. Please try again later.' });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// Server setup
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
