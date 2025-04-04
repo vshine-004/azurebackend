@@ -6,7 +6,7 @@ const fetch = require('node-fetch'); // Required for Node < 18
 const app = express();
 
 // ==== Replace this with your actual Hugging Face API token ====
-const HF_API_TOKEN = 'hf_XXXXXXXXXXXXXXXXXXXXXXXXXXXX'; // << your token here
+const HF_API_TOKEN = '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'; // << your token here
 
 // CORS configuration for your frontend domain
 const corsOptions = {
