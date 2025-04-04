@@ -4,7 +4,14 @@ const bodyParser = require('body-parser');
 
 // Initialize express app
 const app = express();
+const corsOptions = {
+  origin: 'https://delightful-grass-0d007f200.6.azurestaticapps.net', // Specify the exact domain
+  methods: ['GET', 'POST'], // Allowed methods
+  allowedHeaders: ['Content-Type'], // Allowed headers
+};
 
+// Use CORS with the specified options
+app.use(cors(corsOptions));
 // Middleware setup
 app.use(cors());  // Allows all origins (you can modify this if needed)
 app.use(bodyParser.json());  // To parse JSON request bodies
