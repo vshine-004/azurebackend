@@ -1,16 +1,17 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch'); // Required for Node < 18
+const fetch = require('node-fetch'); // Use node-fetch v2 if using Node < 18
 
 const app = express();
 
-// ==== Replace this with your actual Hugging Face API token ====
-const HF_API_TOKEN = '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'; // << your token here
+// Replace this with your actual Hugging Face API token (do not use env here)
+const HF_API_TOKEN = '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';
 
-// CORS configuration for your frontend domain
+// Allow your frontend URL here
 const corsOptions = {
-  origin: 'https://delightful-grass-0d007f200.6.azurestaticapps.net',
+  origin: 'https://delightful-grass-0d007f200.6.azurestaticapps.net', // <- your deployed frontend
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 };
@@ -18,7 +19,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
-// POST endpoint to generate story
 app.post('/generate-story', async (req, res) => {
   const { prompt } = req.body;
 
@@ -33,30 +33,22 @@ app.post('/generate-story', async (req, res) => {
         'Authorization': `Bearer ${HF_API_TOKEN}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        inputs: prompt ,
-      }),
+      body: JSON.stringify({ inputs: prompt }),
     });
 
-    if (!response.ok) {
-      const errorDetails = await response.text();
-      console.error("Hugging Face API Error:", errorDetails);
-      return res.status(500).json({ error: 'Error from Hugging Face API' });
-    }
-
     const data = await response.json();
-    const generatedText = data[0]?.generated_text || 'Story could not be generated.';
 
-    res.status(200).json({ story: generatedText });
+    const fullText = data[0]?.generated_text || 'Story could not be generated.';
+    const generatedStory = fullText.replace(prompt, '').trim();
+
+    res.status(200).json({ story: generatedStory });
   } catch (error) {
-    console.error('Server error:', error.message);
+    console.error('Error:', error.message);
     res.status(500).json({ error: 'Internal Server Error. Please try again later.' });
   }
 });
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
-
