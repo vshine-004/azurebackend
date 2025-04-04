@@ -1,4 +1,4 @@
-const fetch = require('node-fetch'); // <- important: using version 2
+const fetch = require('node-fetch');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -14,7 +14,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
-const HF_API_KEY = 'your-huggingface-api-key'; // replace this with your actual key
+const HF_API_KEY = 'your-huggingface-api-key'; // Replace this
 
 app.post('/generate-story', async (req, res) => {
   const { prompt } = req.body;
@@ -37,8 +37,9 @@ app.post('/generate-story', async (req, res) => {
 
     const data = await response.json();
 
-    if (data.error) {
-      return res.status(500).json({ error: data.error });
+    if (!response.ok) {
+      console.error("HuggingFace API error:", data);
+      return res.status(500).json({ error: data.error || 'HuggingFace API error' });
     }
 
     const story = data[0]?.generated_text || "No story generated.";
