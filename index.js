@@ -34,7 +34,7 @@ app.post('/generate-story', async (req, res) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        inputs: `Write a fun children's story (300-400 words) about: ${prompt}`,
+        inputs: prompt ,
       }),
     });
 
